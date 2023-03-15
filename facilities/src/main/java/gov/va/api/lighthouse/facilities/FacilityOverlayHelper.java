@@ -2,6 +2,7 @@ package gov.va.api.lighthouse.facilities;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
+import gov.va.api.lighthouse.facilities.api.TypedService;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
@@ -20,6 +21,7 @@ public class FacilityOverlayHelper {
           .detailedServices(
               datamartFacility.attributes().detailedServices().parallelStream()
                   .filter(dds -> dds.serviceInfo() != null)
+                  .filter(dds -> !dds.serviceInfo().serviceId().equals(TypedService.INVALID_SVC_ID))
                   .collect(Collectors.toList()));
     }
     return datamartFacility;

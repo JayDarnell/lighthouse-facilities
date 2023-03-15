@@ -336,7 +336,7 @@ public class DetailedServiceTransformerV0 {
    * DatamartDetailedService enum value name. Otherwise, do not alter name.
    */
   public static String toVersionAgnosticDetailedServiceName(String name) {
-    return DatamartFacility.HealthService.isRecognizedServiceEnum(name)
+    return DatamartFacility.HealthService.isRecognizedServiceNameException(name)
         ? DatamartFacility.HealthService.fromString(name).name()
         : DatamartFacility.BenefitsService.isRecognizedServiceEnum(name)
             ? DatamartFacility.BenefitsService.fromString(name).name()

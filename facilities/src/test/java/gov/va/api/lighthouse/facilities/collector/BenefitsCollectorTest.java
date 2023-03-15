@@ -23,6 +23,7 @@ import gov.va.api.lighthouse.facilities.DatamartFacility.FacilityAttributes;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Hours;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Phone;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Service;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -115,26 +116,32 @@ public class BenefitsCollectorTest {
                                             Service.<BenefitsService>builder()
                                                 .serviceType(ApplyingForBenefits)
                                                 .name(ApplyingForBenefits.name())
+                                                .source(Source.BISL)
                                                 .build(),
                                             Service.<BenefitsService>builder()
                                                 .serviceType(BurialClaimAssistance)
                                                 .name(BurialClaimAssistance.name())
+                                                .source(Source.BISL)
                                                 .build(),
                                             Service.<BenefitsService>builder()
                                                 .serviceType(DisabilityClaimAssistance)
                                                 .name(DisabilityClaimAssistance.name())
+                                                .source(Source.BISL)
                                                 .build(),
                                             Service.<BenefitsService>builder()
                                                 .serviceType(eBenefitsRegistrationAssistance)
                                                 .name(eBenefitsRegistrationAssistance.name())
+                                                .source(Source.BISL)
                                                 .build(),
                                             Service.<BenefitsService>builder()
                                                 .serviceType(FamilyMemberClaimAssistance)
                                                 .name(FamilyMemberClaimAssistance.name())
+                                                .source(Source.BISL)
                                                 .build(),
                                             Service.<BenefitsService>builder()
                                                 .serviceType(UpdatingDirectDepositInformation)
                                                 .name(UpdatingDirectDepositInformation.name())
+                                                .source(Source.BISL)
                                                 .build()))
                                     .build())
                             .build())

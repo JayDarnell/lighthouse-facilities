@@ -3,6 +3,7 @@ package gov.va.api.lighthouse.facilities.api.v1;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.lighthouse.facilities.api.TypedService;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -585,6 +586,11 @@ public class DetailedServiceEmptyFieldsTest {
     // Unrecognized service name
     DetailedService unrecognizedDetailedService = new DetailedService();
     unrecognizedDetailedService.serviceName("foo");
-    assertThat(unrecognizedDetailedService.serviceInfo()).isNull();
+    assertThat(unrecognizedDetailedService.serviceInfo())
+        .isEqualTo(
+            DetailedService.ServiceInfo.builder()
+                .name("foo")
+                .serviceId(TypedService.INVALID_SVC_ID)
+                .build());
   }
 }

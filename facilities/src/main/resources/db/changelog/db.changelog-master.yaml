@@ -564,3 +564,674 @@ databaseChangeLog:
                   name: type
               - column:
                   name: services
+  # As a result of the latency event experienced in production August 2022, additional indexes
+  # have been added to drive_time_band, facility, and facility_services tables.
+  # Note: h2 db does not support creating nonclustered indexes or sp_rename
+  #
+  # Drive time band table
+  #   Maximum latitude column index
+  - changeSet:
+      id: 21
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_MAX_LAT
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              indexName: drive_time_band_max_lat_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_MAX_LAT', N'drive_time_band_max_lat_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 22
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              columnName: max_latitude
+              indexName: drive_time_band_max_lat_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_max_lat_idx
+            columns:
+              - column:
+                  name: max_latitude
+  # Drive time band table
+  #   Maximum longitude column index
+  - changeSet:
+      id: 23
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_MAX_LONG
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_max_long_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_MAX_LONG', N'drive_time_band_max_long_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 24
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              columnName: max_longitude
+              indexName: drive_time_band_max_long_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_max_long_idx
+            columns:
+              - column:
+                  name: max_longitude
+  # Drive time band table
+  #   Minimum latitude column index
+  - changeSet:
+      id: 25
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: idx_drive_time_band_MIN_LAT
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_min_lat_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.idx_drive_time_band_MIN_LAT', N'drive_time_band_min_lat_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 26
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              columnName: min_latitude
+              indexName: drive_time_band_min_lat_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_min_lat_idx
+            columns:
+              - column:
+                  name: min_latitude
+  # Drive time band table
+  #   Minimum longitude column index
+  - changeSet:
+      id: 27
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_MIN_LONG
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_min_long_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_MIN_LONG', N'drive_time_band_min_long_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 28
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              columnName: min_longitude
+              indexName: drive_time_band_min_long_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_min_long_idx
+            columns:
+              - column:
+                  name: min_longitude
+  # Drive time band table
+  #   Month year column index
+  - changeSet:
+      id: 29
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_Month_Year
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_month_year_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_Month_Year', N'drive_time_band_month_year_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 30
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              indexName: drive_time_band_month_year_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  CREATE NONCLUSTERED INDEX [drive_time_band_month_year_idx] ON [app].[drive_time_band] ([month_year] ASC) INCLUDE([version])
+            stripComments:  true
+  # Drive time band table
+  #   To minutes column index
+  - changeSet:
+      id: 31
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_To_Minutes
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_to_minutes_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_To_Minutes', N'drive_time_band_to_minutes_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 32
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              columnName: to_minutes
+              indexName: drive_time_band_to_minutes_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_to_minutes_idx
+            columns:
+              - column:
+                  name: to_minutes
+  # Drive time band table
+  #   To minutes, from minutes, station number columns index
+  - changeSet:
+      id: 33
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: drive_time_band
+            indexName: IDX_drive_time_band_ToMinutes_FromMinutes_Station
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: drive_time_band
+                indexName: drive_time_band_tominutes_fromminutes_station_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.drive_time_band.IDX_drive_time_band_ToMinutes_FromMinutes_Station', N'drive_time_band_tominutes_fromminutes_station_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 34
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: drive_time_band
+              indexName: drive_time_band_tominutes_fromminutes_station_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: drive_time_band
+            clustered: false
+            indexName: drive_time_band_tominutes_fromminutes_station_idx
+            columns:
+              - column:
+                  name: to_minutes
+              - column:
+                  name: from_minutes
+              - column:
+                  name: station_number
+  # Facility table
+  #   State column index
+  - changeSet:
+      id: 35
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_State
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_state_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_State', N'facility_state_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 36
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              columnName: state
+              indexName: facility_state_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility
+            clustered: false
+            indexName: facility_state_idx
+            columns:
+              - column:
+                  name: state
+  # Facility table
+  #   Type, latitude, longitude columns index
+  - changeSet:
+      id: 37
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_Type_Lat_Long
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_type_lat_long_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_Type_Lat_Long', N'facility_type_lat_long_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 38
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              indexName: facility_type_lat_long_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility
+            clustered: false
+            indexName: facility_type_lat_long_idx
+            columns:
+              - column:
+                  name: type
+              - column:
+                  name: latitude
+              - column:
+                  name: longitude
+  # Facility table
+  #   Type, longitude, latitude columns index
+  - changeSet:
+      id: 39
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_Type_Long_Lat
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_type_long_lat_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_Type_Long_Lat', N'facility_type_long_lat_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 40
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              indexName: facility_type_long_lat_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility
+            clustered: false
+            indexName: facility_type_long_lat_idx
+            columns:
+              - column:
+                  name: type
+              - column:
+                  name: longitude
+              - column:
+                  name: latitude
+  # Facility table
+  #   Type, zip columns index
+  - changeSet:
+      id: 41
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_Type_Zip
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_type_zip_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_Type_Zip', N'facility_type_zip_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 42
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              indexName: facility_type_zip_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility
+            clustered: false
+            indexName: facility_type_zip_idx
+            columns:
+              - column:
+                  name: type
+              - column:
+                  name: zip
+  # Facility table
+  #   Visn column index
+  - changeSet:
+      id: 43
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_Visn
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_visn_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_Visn', N'facility_visn_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 44
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              indexName: facility_visn_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  CREATE NONCLUSTERED INDEX [facility_visn_idx] ON [app].[facility] ([visn] ASC) INCLUDE([zip],[state],[latitude],[longitude],[facility],[version],[missing_timestamp],[last_updated],[mobile],[cms_operating_status],[cms_services])
+            stripComments:  true
+  # Facility table
+  #   Zip column index
+  - changeSet:
+      id: 45
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility
+            indexName: IDX_facility_Zip
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility
+                indexName: facility_zip_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility.IDX_facility_Zip', N'facility_zip_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 46
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility
+              columnName: zip
+              indexName: facility_zip_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility
+            clustered: false
+            indexName: facility_zip_idx
+            columns:
+              - column:
+                  name: zip
+  # Facility Services table
+  #  Services column index
+  - changeSet:
+      id: 47
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility_services
+            indexName: IDX_facility_services_Services
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility_services
+                indexName: facility_services_services_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility_services.IDX_facility_services_Services', N'facility_services_services_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 48
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility_services
+              columnName: services
+              indexName: facility_services_services_idx
+      changes:
+        - createIndex:
+            schemaName: app
+            tableName: facility_services
+            clustered: false
+            indexName: facility_services_services_idx
+            columns:
+              - column:
+                  name: services
+  # Facility Services table
+  #  Type, services columns index
+  - changeSet:
+      id: 49
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - indexExists:
+            schemaName: app
+            tableName: facility_services
+            indexName: IDX_facility_services_Type_Services
+        - not:
+            - indexExists:
+                schemaName: app
+                tableName: facility_services
+                indexName: facility_services_type_services_idx
+      changes:
+        - sql:
+            dbms: mssql
+            schemaName: app
+            endDelimiter: \nGO
+            splitStatements:  true
+            sql:  exec sp_rename N'app.facility_services.IDX_facility_services_Type_Services', N'facility_services_type_services_idx', N'INDEX'
+            stripComments:  true
+  - changeSet:
+      id: 50
+      author: axolotl
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          - indexExists:
+              schemaName: app
+              tableName: facility_services
+              indexName: facility_services_type_services_idx
+      changes:
+        - createIndex:
+            tableName: facility_services
+            schemaName: app
+            clustered: false
+            indexName: facility_services_type_services_idx
+            columns:
+              - column:
+                  name: type
+              - column:
+                  name: services

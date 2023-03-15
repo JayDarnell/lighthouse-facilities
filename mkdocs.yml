@@ -1,0 +1,11 @@
+site_name: VA Facilities API
+site_description: "Documentation for the VA Facilities API"
+repo_url: https://github.com/department-of-veterans-affairs/lighthouse-facilities
+edit_uri: edit/master/docs/
+nav:
+  - Home: index.md
+markdown_extensions:
+  - pymdownx.snippets:
+      check_paths: true
+plugins:
+  - techdocs-core

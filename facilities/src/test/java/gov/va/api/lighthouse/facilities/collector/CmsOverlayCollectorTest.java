@@ -12,7 +12,13 @@ import gov.va.api.lighthouse.facilities.DatamartCmsOverlay;
 import gov.va.api.lighthouse.facilities.DatamartDetailedService;
 import gov.va.api.lighthouse.facilities.DatamartFacilitiesJacksonConfig;
 import gov.va.api.lighthouse.facilities.DatamartFacility;
+import gov.va.api.lighthouse.facilities.DatamartFacility.BenefitsService;
+import gov.va.api.lighthouse.facilities.DatamartFacility.HealthService;
+import gov.va.api.lighthouse.facilities.DatamartFacility.OtherService;
 import gov.va.api.lighthouse.facilities.DatamartFacility.PatientWaitTime;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import gov.va.api.lighthouse.facilities.FacilityEntity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -128,32 +134,48 @@ public class CmsOverlayCollectorTest {
     when(mockEntity.overlayServices())
         .thenReturn(
             Set.of(
-                "Covid19Vaccine", "ColonSurgery", "CriticalCare", "PrimaryCare", "EmergencyCare"));
+                HealthService.Covid19Vaccine.name(),
+                BenefitsService.ApplyingForBenefits.name(),
+                OtherService.OnlineScheduling.name()));
     when(mockCmsOverlayRepository.findAll()).thenReturn(List.of(mockEntity));
-    HashMap<String, DatamartFacility.HealthService> expectedFacilityCovid19Map = new HashMap<>();
-    expectedFacilityCovid19Map.put(id, DatamartFacility.HealthService.Covid19Vaccine);
+    HashMap<String, Services> expectedCmsServicesMap = new HashMap<>();
+    expectedCmsServicesMap.put(
+        id,
+        Services.builder()
+            .benefits(
+                List.of(
+                    Service.<BenefitsService>builder()
+                        .serviceType(BenefitsService.ApplyingForBenefits)
+                        .source(Source.CMS)
+                        .build()))
+            .health(
+                List.of(
+                    Service.<HealthService>builder()
+                        .serviceType(HealthService.Covid19Vaccine)
+                        .source(Source.CMS)
+                        .build()))
+            .other(
+                List.of(
+                    Service.<OtherService>builder()
+                        .serviceType(OtherService.OnlineScheduling)
+                        .source(Source.CMS)
+                        .build()))
+            .build());
     CmsOverlayCollector collector = new CmsOverlayCollector(mockCmsOverlayRepository);
-    assertThat(collector.getCovid19VaccineServices().get(id))
-        .isEqualTo(
-            DatamartFacility.Service.<DatamartFacility.HealthService>builder()
-                .serviceType(DatamartFacility.HealthService.Covid19Vaccine)
-                .name(DatamartFacility.HealthService.Covid19Vaccine.name())
-                .build());
+    HashMap<String, Services> actualCmsServicesMap = collector.getCmsServices();
+    assertThat(actualCmsServicesMap.get(id)).isEqualTo(expectedCmsServicesMap.get(id));
   }
 
   @Test
   @SneakyThrows
-  void loadOverlayDetailedServicesWithNoCovid19Vaccine() {
+  void loadOverlayWithNoDetailedServices() {
     var id = "vha_561";
     CmsOverlayEntity mockEntity = mock(CmsOverlayEntity.class);
     when(mockEntity.id()).thenReturn(FacilityEntity.Pk.fromIdString(id));
-    when(mockEntity.overlayServices())
-        .thenReturn(Set.of("ColonSurgery", "CriticalCare", "PrimaryCare", "EmergencyCare"));
+    when(mockEntity.overlayServices()).thenReturn(Set.of());
     when(mockCmsOverlayRepository.findAll()).thenReturn(List.of(mockEntity));
-    HashMap<String, DatamartFacility.HealthService> expectedFacilityCovid19Map = new HashMap<>();
-    expectedFacilityCovid19Map.put(id, DatamartFacility.HealthService.Covid19Vaccine);
     CmsOverlayCollector collector = new CmsOverlayCollector(mockCmsOverlayRepository);
-    assertThat(collector.getCovid19VaccineServices().get(id)).isNull();
+    assertThat(collector.getCmsServices()).isEmpty();
   }
 
   @Test

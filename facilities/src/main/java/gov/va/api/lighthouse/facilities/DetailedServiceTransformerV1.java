@@ -162,7 +162,7 @@ public class DetailedServiceTransformerV1 {
    * DetailedService enum value name. Otherwise, do not alter name.
    */
   public static String toDetailedServiceName(String name) {
-    return Facility.HealthService.isRecognizedServiceEnum(name)
+    return Facility.HealthService.isRecognizedServiceNameException(name)
         ? Facility.HealthService.fromString(name).name()
         : Facility.BenefitsService.isRecognizedServiceEnum(name)
             ? Facility.BenefitsService.fromString(name).name()
@@ -357,7 +357,7 @@ public class DetailedServiceTransformerV1 {
    * DatamartDetailedService enum value name. Otherwise, do not alter name.
    */
   public static String toVersionAgnosticDetailedServiceName(String name) {
-    return DatamartFacility.HealthService.isRecognizedServiceEnum(name)
+    return DatamartFacility.HealthService.isRecognizedServiceNameException(name)
         ? DatamartFacility.HealthService.fromString(name).name()
         : DatamartFacility.BenefitsService.isRecognizedServiceEnum(name)
             ? DatamartFacility.BenefitsService.fromString(name).name()

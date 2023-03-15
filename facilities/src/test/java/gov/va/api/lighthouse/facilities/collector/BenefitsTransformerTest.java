@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.lighthouse.facilities.DatamartFacility.BenefitsService;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Service;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -37,62 +38,77 @@ public class BenefitsTransformerTest {
                     Service.<BenefitsService>builder()
                         .serviceType(ApplyingForBenefits)
                         .name(ApplyingForBenefits.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(DisabilityClaimAssistance)
                         .name(DisabilityClaimAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(eBenefitsRegistrationAssistance)
                         .name(eBenefitsRegistrationAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(EducationAndCareerCounseling)
                         .name(EducationAndCareerCounseling.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(EducationClaimAssistance)
                         .name(EducationClaimAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(FamilyMemberClaimAssistance)
                         .name(FamilyMemberClaimAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(HomelessAssistance)
                         .name(HomelessAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(VAHomeLoanAssistance)
                         .name(VAHomeLoanAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(InsuranceClaimAssistanceAndFinancialCounseling)
                         .name(InsuranceClaimAssistanceAndFinancialCounseling.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(IntegratedDisabilityEvaluationSystemAssistance)
                         .name(IntegratedDisabilityEvaluationSystemAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(PreDischargeClaimAssistance)
                         .name(PreDischargeClaimAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(TransitionAssistance)
                         .name(TransitionAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(UpdatingDirectDepositInformation)
                         .name(UpdatingDirectDepositInformation.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(VocationalRehabilitationAndEmploymentAssistance)
                         .name(VocationalRehabilitationAndEmploymentAssistance.name())
+                        .source(Source.BISL)
                         .build(),
                     Service.<BenefitsService>builder()
                         .serviceType(Pensions)
                         .name(Pensions.name())
+                        .source(Source.BISL)
                         .build())));
   }
 

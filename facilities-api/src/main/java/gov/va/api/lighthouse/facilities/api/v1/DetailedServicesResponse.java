@@ -20,12 +20,20 @@ import org.apache.commons.lang3.ObjectUtils;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(value = Include.NON_EMPTY, content = Include.NON_EMPTY)
 @JsonSerialize(using = DetailedServicesResponseSerializer.class)
+@Schema(description = "JSON API response containing a list of services.")
 public class DetailedServicesResponse implements CanBeEmpty {
+  @Schema(description = "List of objects containing service details.")
   List<@Valid DetailedService> data;
 
-  @Valid @NotNull PageLinks links;
+  @Schema(description = "Link to related pages of response.")
+  @Valid
+  @NotNull
+  PageLinks links;
 
-  @Valid @NotNull DetailedServicesMetadata meta;
+  @Schema(description = "JSON API-compliant object containing metadata about this response.")
+  @Valid
+  @NotNull
+  DetailedServicesMetadata meta;
 
   /** Empty elements will be omitted from JSON serialization. */
   @Override

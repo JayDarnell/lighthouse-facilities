@@ -9,6 +9,7 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.api.v1.CmsOverlay;
 import gov.va.api.lighthouse.facilities.api.v1.DetailedService;
 import gov.va.api.lighthouse.facilities.api.v1.Facility;
@@ -36,7 +37,10 @@ public class FacilityOverlayV1Test {
       List<Facility.Service<Facility.HealthService>> expectedHealthServices,
       @NonNull FacilityEntity entity,
       @NonNull String linkerUrl) {
-    Facility facility = FacilityOverlayV1.builder().build().apply(entity, linkerUrl);
+    Facility facility =
+        FacilityOverlayV1.builder()
+            .build()
+            .apply(entity, linkerUrl, List.of("ATC", "CMS", "DST", "internal", "BISL"));
     assertThat(facility.attributes().services().health())
         .usingRecursiveComparison()
         .isEqualTo(expectedHealthServices);
@@ -150,9 +154,13 @@ public class FacilityOverlayV1Test {
         }
       }
     }
+    DatamartFacility df = FacilityTransformerV1.toVersionAgnostic(facility);
+    if (df.attributes().services().health() != null) {
+      df.attributes().services().health().stream().forEach(hs -> hs.source(Source.CMS));
+    }
+
     return FacilityEntity.builder()
-        .facility(
-            DATAMART_MAPPER.writeValueAsString(FacilityTransformerV1.toVersionAgnostic(facility)))
+        .facility(DATAMART_MAPPER.writeValueAsString(df))
         .cmsOperatingStatus(
             overlay == null ? null : MAPPER_V1.writeValueAsString(overlay.operatingStatus()))
         .overlayServices(overlay == null ? null : detailedServices)

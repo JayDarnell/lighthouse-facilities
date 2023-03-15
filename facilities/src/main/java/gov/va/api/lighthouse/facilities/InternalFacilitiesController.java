@@ -409,7 +409,7 @@ public class InternalFacilitiesController {
     response.timing().markCompleteCollection();
     log.info("Facilities collected: {}", collectedFacilities.size());
     try {
-      collectedFacilities.parallelStream().forEach(f -> updateFacility(response, f));
+      collectedFacilities.stream().forEach(f -> updateFacility(response, f));
       for (FacilityEntity.Pk missingId : missingIds(collectedFacilities)) {
         processMissingFacility(response, missingId);
       }

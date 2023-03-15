@@ -43,7 +43,7 @@ public class DetailedService {
 
   @Schema(description = "Service id.", example = "covid19Vaccine")
   @JsonProperty("service_id")
-  @JsonAlias("{serviceId, service_api_id}")
+  @JsonAlias({"serviceId", "service_api_id"})
   @NonNull
   String serviceId;
 

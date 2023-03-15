@@ -2,6 +2,7 @@ package gov.va.api.lighthouse.facilities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,10 @@ public class FacilitySamples {
                     gov.va.api.lighthouse.facilities.api.v0.Facility::id, Function.identity()));
     facilitiesV1 =
         datamartFacilities.stream()
-            .map(df -> FacilityTransformerV1.toFacility(df, linkerUrl))
+            .map(
+                df ->
+                    FacilityTransformerV1.toFacility(
+                        df, linkerUrl, List.of("ATC", "CMS", "DST", "internal", "BISL")))
             .collect(
                 Collectors.toMap(
                     gov.va.api.lighthouse.facilities.api.v1.Facility::id, Function.identity()));
@@ -58,12 +62,14 @@ public class FacilitySamples {
   }
 
   FacilityEntity facilityEntity(String id) {
+    DatamartFacility df = FacilityTransformerV0.toVersionAgnostic(facility(id));
+    df.attributes().services().health().stream().forEach(hs -> hs.source(Source.ATC));
     return InternalFacilitiesController.populate(
         FacilityEntity.builder()
             .id(FacilityEntity.Pk.fromIdString(id))
             .lastUpdated(Instant.now())
             .build(),
-        FacilityTransformerV0.toVersionAgnostic(facility(id)));
+        df);
   }
 
   gov.va.api.lighthouse.facilities.api.v1.Facility facilityV1(String id) {

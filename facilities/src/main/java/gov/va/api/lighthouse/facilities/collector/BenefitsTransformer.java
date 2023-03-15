@@ -31,6 +31,7 @@ import gov.va.api.lighthouse.facilities.DatamartFacility.BenefitsService;
 import gov.va.api.lighthouse.facilities.DatamartFacility.FacilityAttributes;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Hours;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Phone;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,72 +97,112 @@ final class BenefitsTransformer {
     List<Service<BenefitsService>> benefitsServices = new ArrayList<>();
     if (yesNoToBoolean(cdwFacility.applyingForBenefits())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(ApplyingForBenefits).build());
+          Service.<BenefitsService>builder()
+              .serviceType(ApplyingForBenefits)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.burialClaimAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(BurialClaimAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(BurialClaimAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.disabilityClaimAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(DisabilityClaimAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(DisabilityClaimAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.ebenefitsRegistration())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(eBenefitsRegistrationAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(eBenefitsRegistrationAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.educationAndCareerCounseling())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(EducationAndCareerCounseling).build());
+          Service.<BenefitsService>builder()
+              .serviceType(EducationAndCareerCounseling)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.educationClaimAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(EducationClaimAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(EducationClaimAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.familyMemberClaimAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(FamilyMemberClaimAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(FamilyMemberClaimAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.homelessAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(HomelessAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(HomelessAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.vaHomeLoanAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(VAHomeLoanAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(VAHomeLoanAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.insuranceClaimAssistance())) {
       benefitsServices.add(
           Service.<BenefitsService>builder()
               .serviceType(InsuranceClaimAssistanceAndFinancialCounseling)
+              .source(Source.BISL)
               .build());
     }
     if (yesNoToBoolean(cdwFacility.integratedDisabilityEvaluationSystem())) {
       benefitsServices.add(
           Service.<BenefitsService>builder()
               .serviceType(IntegratedDisabilityEvaluationSystemAssistance)
+              .source(Source.BISL)
               .build());
     }
     if (yesNoToBoolean(cdwFacility.preDischargeClaimAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(PreDischargeClaimAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(PreDischargeClaimAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.transitionAssistance())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(TransitionAssistance).build());
+          Service.<BenefitsService>builder()
+              .serviceType(TransitionAssistance)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.updatingDirectDepositInformation())) {
       benefitsServices.add(
-          Service.<BenefitsService>builder().serviceType(UpdatingDirectDepositInformation).build());
+          Service.<BenefitsService>builder()
+              .serviceType(UpdatingDirectDepositInformation)
+              .source(Source.BISL)
+              .build());
     }
     if (yesNoToBoolean(cdwFacility.vocationalRehabilitationEmplo())) {
       benefitsServices.add(
           Service.<BenefitsService>builder()
               .serviceType(VocationalRehabilitationAndEmploymentAssistance)
+              .source(Source.BISL)
               .build());
     }
     if (StringUtils.containsIgnoreCase(cdwFacility.otherServices(), "PENSION")) {
-      benefitsServices.add(Service.<BenefitsService>builder().serviceType(Pensions).build());
+      benefitsServices.add(
+          Service.<BenefitsService>builder().serviceType(Pensions).source(Source.BISL).build());
     }
     return Services.builder().benefits(benefitsServices).build();
   }

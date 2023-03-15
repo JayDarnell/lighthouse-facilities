@@ -16,8 +16,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import gov.va.api.lighthouse.facilities.DatamartFacility.BenefitsService;
 import gov.va.api.lighthouse.facilities.DatamartFacility.HealthService;
+import gov.va.api.lighthouse.facilities.DatamartFacility.OtherService;
 import gov.va.api.lighthouse.facilities.DatamartFacility.PatientWaitTime;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import gov.va.api.lighthouse.facilities.api.TypedService;
 import gov.va.api.lighthouse.facilities.api.v1.CmsOverlay;
 import gov.va.api.lighthouse.facilities.api.v1.CmsOverlayResponse;
@@ -86,6 +91,80 @@ public class CmsOverlayControllerV1Test {
     assertThatThrownBy(() -> controller().getDetailedServices("vha_000", page, perPage))
         .isInstanceOf(ExceptionsUtils.NotFound.class)
         .hasMessage("The record identified by vha_000 could not be found");
+  }
+
+  private List<DatamartDetailedService> getDatamartBenefitsDetailedServices(
+      @NonNull List<DatamartFacility.BenefitsService> benefitsServices, boolean isActive) {
+    return benefitsServices.stream()
+        .map(
+            bs ->
+                DatamartDetailedService.builder()
+                    .serviceInfo(
+                        DatamartDetailedService.ServiceInfo.builder()
+                            .serviceId(bs.serviceId())
+                            .name(bs.name())
+                            .serviceType(bs.serviceType())
+                            .build())
+                    .active(isActive)
+                    .changed(null)
+                    .appointmentLeadIn(
+                        "Your VA health care team will contact you if you...more text")
+                    .onlineSchedulingAvailable("True")
+                    .path("replaceable path here")
+                    .phoneNumbers(
+                        List.of(
+                            DatamartDetailedService.AppointmentPhoneNumber.builder()
+                                .extension("123")
+                                .label("Main phone")
+                                .number("555-555-1212")
+                                .type("tel")
+                                .build()))
+                    .referralRequired("True")
+                    .walkInsAccepted("False")
+                    .serviceLocations(
+                        List.of(
+                            DatamartDetailedService.DetailedServiceLocation.builder()
+                                .serviceLocationAddress(
+                                    DatamartDetailedService.DetailedServiceAddress.builder()
+                                        .buildingNameNumber("Baxter Building")
+                                        .clinicName("Baxter Clinic")
+                                        .wingFloorOrRoomNumber("Wing East")
+                                        .address1("122 Main St.")
+                                        .address2(null)
+                                        .city("Rochester")
+                                        .state("NY")
+                                        .zipCode("14623-1345")
+                                        .countryCode("US")
+                                        .build())
+                                .appointmentPhoneNumbers(
+                                    List.of(
+                                        DatamartDetailedService.AppointmentPhoneNumber.builder()
+                                            .extension("567")
+                                            .label("Alt phone")
+                                            .number("556-565-1119")
+                                            .type("tel")
+                                            .build()))
+                                .emailContacts(
+                                    List.of(
+                                        DatamartDetailedService.DetailedServiceEmailContact
+                                            .builder()
+                                            .emailAddress("georgea@va.gov")
+                                            .emailLabel("George Anderson")
+                                            .build()))
+                                .facilityServiceHours(
+                                    DatamartDetailedService.DetailedServiceHours.builder()
+                                        .monday("8:30AM-7:00PM")
+                                        .tuesday("8:30AM-7:00PM")
+                                        .wednesday("8:30AM-7:00PM")
+                                        .thursday("8:30AM-7:00PM")
+                                        .friday("8:30AM-7:00PM")
+                                        .saturday("8:30AM-7:00PM")
+                                        .sunday("CLOSED")
+                                        .build())
+                                .additionalHoursInfo("Please call for an appointment outside...")
+                                .build()))
+                    .build())
+        .collect(Collectors.toList());
   }
 
   private DatamartDetailedService getDatamartDetailedService(
@@ -175,6 +254,80 @@ public class CmsOverlayControllerV1Test {
             hs -> {
               return getDatamartDetailedService(hs, isActive);
             })
+        .collect(Collectors.toList());
+  }
+
+  private List<DatamartDetailedService> getDatamartOtherDetailedServices(
+      @NonNull List<DatamartFacility.OtherService> benefitsServices, boolean isActive) {
+    return benefitsServices.stream()
+        .map(
+            os ->
+                DatamartDetailedService.builder()
+                    .serviceInfo(
+                        DatamartDetailedService.ServiceInfo.builder()
+                            .serviceId(os.serviceId())
+                            .name(os.name())
+                            .serviceType(os.serviceType())
+                            .build())
+                    .active(isActive)
+                    .changed(null)
+                    .appointmentLeadIn(
+                        "Your VA health care team will contact you if you...more text")
+                    .onlineSchedulingAvailable("True")
+                    .path("replaceable path here")
+                    .phoneNumbers(
+                        List.of(
+                            DatamartDetailedService.AppointmentPhoneNumber.builder()
+                                .extension("123")
+                                .label("Main phone")
+                                .number("555-555-1212")
+                                .type("tel")
+                                .build()))
+                    .referralRequired("True")
+                    .walkInsAccepted("False")
+                    .serviceLocations(
+                        List.of(
+                            DatamartDetailedService.DetailedServiceLocation.builder()
+                                .serviceLocationAddress(
+                                    DatamartDetailedService.DetailedServiceAddress.builder()
+                                        .buildingNameNumber("Baxter Building")
+                                        .clinicName("Baxter Clinic")
+                                        .wingFloorOrRoomNumber("Wing East")
+                                        .address1("122 Main St.")
+                                        .address2(null)
+                                        .city("Rochester")
+                                        .state("NY")
+                                        .zipCode("14623-1345")
+                                        .countryCode("US")
+                                        .build())
+                                .appointmentPhoneNumbers(
+                                    List.of(
+                                        DatamartDetailedService.AppointmentPhoneNumber.builder()
+                                            .extension("567")
+                                            .label("Alt phone")
+                                            .number("556-565-1119")
+                                            .type("tel")
+                                            .build()))
+                                .emailContacts(
+                                    List.of(
+                                        DatamartDetailedService.DetailedServiceEmailContact
+                                            .builder()
+                                            .emailAddress("georgea@va.gov")
+                                            .emailLabel("George Anderson")
+                                            .build()))
+                                .facilityServiceHours(
+                                    DatamartDetailedService.DetailedServiceHours.builder()
+                                        .monday("8:30AM-7:00PM")
+                                        .tuesday("8:30AM-7:00PM")
+                                        .wednesday("8:30AM-7:00PM")
+                                        .thursday("8:30AM-7:00PM")
+                                        .friday("8:30AM-7:00PM")
+                                        .saturday("8:30AM-7:00PM")
+                                        .sunday("CLOSED")
+                                        .build())
+                                .additionalHoursInfo("Please call for an appointment outside...")
+                                .build()))
+                    .build())
         .collect(Collectors.toList());
   }
 
@@ -586,6 +739,13 @@ public class CmsOverlayControllerV1Test {
                     .writeValueAsString(overlay.detailedServices()))
             .build();
     when(mockCmsOverlayRepository.findById(pk)).thenReturn(Optional.of(cmsOverlayEntity));
+    List<DatamartDetailedService> benefitsServices =
+        getDatamartBenefitsDetailedServices(
+            List.of(BenefitsService.ApplyingForBenefits, BenefitsService.HomelessAssistance), true);
+    List<DatamartDetailedService> otherServices =
+        getDatamartOtherDetailedServices(List.of(OtherService.OnlineScheduling), true);
+    overlay.detailedServices().addAll(benefitsServices);
+    overlay.detailedServices().addAll(otherServices);
     controller().saveOverlay("vha_402", CmsOverlayTransformerV1.toCmsOverlay(overlay));
     DatamartCmsOverlay updatedCovidPathOverlay = overlay();
     List<DatamartDetailedService> datamartDetailedServices =
@@ -599,15 +759,54 @@ public class CmsOverlayControllerV1Test {
     }
     // Verify that facility is updated with detailed services from overlay
     FacilityEntity updatedFacilityEntity = mockFacilityRepository.findById(pk).get();
+    DatamartFacility datamartFacility =
+        DatamartFacilitiesJacksonConfig.createMapper()
+            .readValue(updatedFacilityEntity.facility(), DatamartFacility.class);
     Facility facility =
         FacilityTransformerV1.toFacility(
-            DatamartFacilitiesJacksonConfig.createMapper()
-                .readValue(updatedFacilityEntity.facility(), DatamartFacility.class),
-            linkerUrl);
+            datamartFacility, linkerUrl, List.of("ATC", "CMS", "DST", "internal", "BISL"));
     assertThat(facility.attributes().activeStatus()).isEqualTo(Facility.ActiveStatus.T);
     assertThat(facility.attributes().operatingStatus())
         .usingRecursiveComparison()
         .isEqualTo(CmsOverlayTransformerV1.toCmsOverlay(overlay).operatingStatus());
+    // Assert that facility services saved correctly
+    DatamartFacility.Services facilityServices =
+        Services.builder()
+            .benefits(
+                List.of(
+                    Service.<BenefitsService>builder()
+                        .serviceType(BenefitsService.ApplyingForBenefits)
+                        .source(Source.CMS)
+                        .build(),
+                    Service.<BenefitsService>builder()
+                        .serviceType(BenefitsService.HomelessAssistance)
+                        .source(Source.CMS)
+                        .build()))
+            .health(
+                List.of(
+                    Service.<HealthService>builder()
+                        .serviceType(HealthService.Cardiology)
+                        .source(Source.CMS)
+                        .build(),
+                    Service.<HealthService>builder()
+                        .name(CMS_OVERLAY_SERVICE_NAME_COVID_19)
+                        .serviceType(HealthService.Covid19Vaccine)
+                        .source(Source.CMS)
+                        .build(),
+                    Service.<HealthService>builder()
+                        .serviceType(HealthService.Urology)
+                        .source(Source.CMS)
+                        .build()))
+            .other(
+                List.of(
+                    Service.<OtherService>builder()
+                        .serviceType(OtherService.OnlineScheduling)
+                        .source(Source.CMS)
+                        .build()))
+            .build();
+    assertThat(datamartFacility.attributes().services())
+        .usingRecursiveComparison()
+        .isEqualTo(facilityServices);
   }
 
   @Test

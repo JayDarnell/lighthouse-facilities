@@ -1,9 +1,5 @@
-package gov.va.api.lighthouse.facilities.api;
+package gov.va.api.lighthouse.facilities.api.v0;
 
-import gov.va.api.lighthouse.facilities.api.v0.ApiError;
-import gov.va.api.lighthouse.facilities.api.v0.FacilityReadResponse;
-import gov.va.api.lighthouse.facilities.api.v0.GenericError;
-import gov.va.api.lighthouse.facilities.api.v0.GeoFacilityReadResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

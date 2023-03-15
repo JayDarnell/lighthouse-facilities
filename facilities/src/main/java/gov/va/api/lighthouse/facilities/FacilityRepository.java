@@ -1,20 +1,14 @@
 package gov.va.api.lighthouse.facilities;
 
-import static gov.va.api.lighthouse.facilities.DatamartFacilitiesJacksonConfig.createMapper;
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.autoconfig.logging.Loggable;
-import gov.va.api.lighthouse.facilities.api.ServiceType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -48,49 +42,15 @@ public interface FacilityRepository
   Instant findLastUpdated();
 
   abstract class ServicesSpecificationHelper implements Specification<FacilityEntity> {
-    private static final ObjectMapper DATAMART_MAPPER = createMapper();
 
     @SneakyThrows
     protected Predicate buildServicesPredicate(
-        Root<FacilityEntity> root, CriteriaBuilder criteriaBuilder, Set<ServiceType> services) {
+        Root<FacilityEntity> root, CriteriaBuilder criteriaBuilder, Set<String> services) {
       Predicate[] servicePredicates =
           services.stream()
-              .map(
-                  svc ->
-                      DatamartFacility.HealthService.isRecognizedServiceId(svc.serviceId())
-                          ? DatamartFacility.HealthService.fromServiceId(svc.serviceId()).get()
-                          : DatamartFacility.BenefitsService.isRecognizedServiceId(svc.serviceId())
-                              ? DatamartFacility.BenefitsService.fromServiceId(svc.serviceId())
-                                  .get()
-                              : DatamartFacility.OtherService.isRecognizedServiceId(svc.serviceId())
-                                  ? DatamartFacility.OtherService.fromServiceId(svc.serviceId())
-                                      .get()
-                                  : null)
-              .filter(Objects::nonNull)
-              .map(
-                  typedService -> {
-                    try {
-                      return criteriaBuilder.isMember(
-                          DATAMART_MAPPER.writeValueAsString(
-                              DatamartFacility.Service.builder().serviceType(typedService).build()),
-                          root.get("services"));
-                    } catch (final JsonProcessingException ex) {
-                      throw new RuntimeException(ex);
-                    }
-                  })
+              .map(s -> criteriaBuilder.isMember(s, root.get("services")))
               .toArray(Predicate[]::new);
-      Predicate anyFacilityService = criteriaBuilder.or(servicePredicates);
-
-      Predicate[] overlayServicePredicates =
-          services.stream()
-              .map(
-                  svc ->
-                      criteriaBuilder.isMember(
-                          capitalize(svc.serviceId()), root.get("overlayServices")))
-              .toArray(Predicate[]::new);
-      Predicate anyOverlayService = criteriaBuilder.or(overlayServicePredicates);
-
-      return criteriaBuilder.or(anyFacilityService, anyOverlayService);
+      return criteriaBuilder.or(servicePredicates);
     }
   }
 
@@ -108,7 +68,7 @@ public interface FacilityRepository
 
     FacilityEntity.Type facilityType;
 
-    @Builder.Default Set<ServiceType> services = emptySet();
+    @Builder.Default Set<String> services = emptySet();
 
     Boolean mobile;
 
@@ -148,7 +108,7 @@ public interface FacilityRepository
 
     FacilityEntity.Type facilityType;
 
-    @Builder.Default Set<ServiceType> services = emptySet();
+    @Builder.Default Set<String> services = emptySet();
 
     Boolean mobile;
 
@@ -185,7 +145,7 @@ public interface FacilityRepository
 
     FacilityEntity.Type facilityType;
 
-    @Builder.Default Set<ServiceType> services = emptySet();
+    @Builder.Default Set<String> services = emptySet();
 
     @Override
     @SneakyThrows
@@ -225,7 +185,7 @@ public interface FacilityRepository
 
     FacilityEntity.Type facilityType;
 
-    @Builder.Default Set<ServiceType> services = emptySet();
+    @Builder.Default Set<String> services = emptySet();
 
     Boolean mobile;
 
@@ -266,7 +226,7 @@ public interface FacilityRepository
 
     FacilityEntity.Type facilityType;
 
-    @Builder.Default Set<ServiceType> services = emptySet();
+    @Builder.Default Set<String> services = emptySet();
 
     Boolean mobile;
 

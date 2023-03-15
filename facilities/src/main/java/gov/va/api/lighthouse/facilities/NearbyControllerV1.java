@@ -1,26 +1,33 @@
 package gov.va.api.lighthouse.facilities;
 
 import static gov.va.api.lighthouse.facilities.ControllersV1.validateServices;
+import static gov.va.api.lighthouse.facilities.FacilitiesJacksonConfigV1.createMapper;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.NearbyId;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.intersections;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.validateDriveTime;
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.api.ServiceType;
 import gov.va.api.lighthouse.facilities.api.v1.NearbyResponse;
-import gov.va.api.lighthouse.facilities.collector.InsecureRestTemplateProvider;
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,17 +39,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/v1/nearby")
 @Slf4j
 public class NearbyControllerV1 {
+
+  private static final ObjectMapper MAPPER_V1 = createMapper();
   private final FacilityRepository facilityRepository;
 
   private final DriveTimeBandRepository driveTimeBandRepository;
+
+  List<String> serviceSources;
 
   @Builder
   NearbyControllerV1(
       @Autowired FacilityRepository facilityRepository,
       @Autowired DriveTimeBandRepository driveTimeBandRepository,
-      @Autowired InsecureRestTemplateProvider restTemplateProvider) {
+      @Value("${facility-services-source-v1:}#{T(java.util.Collections).emptyList()}")
+          List<String> serviceSources) {
     this.facilityRepository = facilityRepository;
     this.driveTimeBandRepository = driveTimeBandRepository;
+    this.serviceSources =
+        serviceSources.stream()
+            .filter(s -> EnumUtils.isValidEnum(Source.class, s))
+            .collect(Collectors.toList());
+    ;
   }
 
   private String getMonthYearFromBandIds(List<NearbyId> ids) {
@@ -80,6 +97,29 @@ public class NearbyControllerV1 {
       List<String> rawServices,
       Integer rawMaxDriveTime) {
     Set<ServiceType> services = validateServices(rawServices);
+    Set<String> serviceStrings = new HashSet<>();
+    services.stream()
+        .forEach(
+            serviceType -> {
+              serviceSources.stream()
+                  .forEach(
+                      source -> {
+                        try {
+                          String service =
+                              MAPPER_V1.writeValueAsString(
+                                  DatamartFacility.Service.builder()
+                                      .serviceId(serviceType.serviceId())
+                                      .name(serviceType.name())
+                                      .source(Source.valueOf(source))
+                                      .build());
+                          serviceStrings.add(service);
+
+                        } catch (final JsonProcessingException ex) {
+                          throw new RuntimeException(ex);
+                        }
+                      });
+            });
+
     Integer maxDriveTime = validateDriveTime(rawMaxDriveTime);
     log.info(
         "Searching near {},{} within {} minutes with {} services",
@@ -103,7 +143,7 @@ public class NearbyControllerV1 {
             FacilityRepository.StationNumbersSpecification.builder()
                 .stationNumbers(bandsByStation.keySet())
                 .facilityType(FacilityEntity.Type.vha)
-                .services(services)
+                .services(serviceStrings)
                 .build());
     return facilityEntities.stream()
         .map(

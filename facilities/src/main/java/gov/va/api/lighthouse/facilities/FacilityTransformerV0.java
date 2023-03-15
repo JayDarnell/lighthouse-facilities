@@ -1,6 +1,8 @@
 package gov.va.api.lighthouse.facilities;
 
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.api.v0.Facility;
+import gov.va.api.lighthouse.facilities.api.v0.Facility.HealthService;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,7 +12,7 @@ import lombok.experimental.UtilityClass;
 
 /** Utility class for transforming DatamartFacility to version 0 facility object and back. */
 @UtilityClass
-public final class FacilityTransformerV0 extends BaseVersionedTransformer {
+public final class FacilityTransformerV0 {
   /** Transform persisted DatamartFacility to version 0 facility. */
   static Facility toFacility(@NonNull DatamartFacility df) {
     return Facility.builder()
@@ -205,9 +207,10 @@ public final class FacilityTransformerV0 extends BaseVersionedTransformer {
                 (datamartFacilityServices.health() != null)
                     ? datamartFacilityServices.health().parallelStream()
                         .filter(
-                            e ->
-                                containsValueOfName(Facility.HealthService.values(), e.name())
-                                    || checkHealthServiceNameChange(e))
+                            hs ->
+                                !(hs.source != null && hs.source.equals(Source.CMS))
+                                    || hs.serviceId()
+                                        .equals(HealthService.Covid19Vaccine.serviceId()))
                         .map(FacilityTransformerV0::toFacilityHealthService)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())
@@ -215,6 +218,7 @@ public final class FacilityTransformerV0 extends BaseVersionedTransformer {
             .benefits(
                 (datamartFacilityServices.benefits() != null)
                     ? datamartFacilityServices.benefits().parallelStream()
+                        .filter(hs -> !(hs.source != null && hs.source.equals(Source.CMS)))
                         .map(FacilityTransformerV0::toFacilityBenefitsService)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())
@@ -222,6 +226,7 @@ public final class FacilityTransformerV0 extends BaseVersionedTransformer {
             .other(
                 (datamartFacilityServices.other() != null)
                     ? datamartFacilityServices.other().parallelStream()
+                        .filter(hs -> !(hs.source != null && hs.source.equals(Source.CMS)))
                         .map(FacilityTransformerV0::toFacilityOtherService)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())
@@ -494,11 +499,6 @@ public final class FacilityTransformerV0 extends BaseVersionedTransformer {
             .health(
                 (facilityServices.health() != null)
                     ? facilityServices.health().parallelStream()
-                        .filter(
-                            e ->
-                                containsValueOfName(
-                                        DatamartFacility.HealthService.values(), e.name())
-                                    || checkHealthServiceNameChange(e))
                         .map(FacilityTransformerV0::toVersionAgnosticFacilityHealthService)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())

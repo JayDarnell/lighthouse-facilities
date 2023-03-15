@@ -78,13 +78,6 @@ public class DatamartDetailedService {
   @JsonProperty("walk_ins_accepted")
   String walkInsAccepted;
 
-  private boolean isRecognizedEnumOrCovidService(String serviceName) {
-    return isNotEmpty(serviceName)
-        && (HealthService.isRecognizedEnumOrCovidService(serviceName)
-            || BenefitsService.isRecognizedServiceEnum(serviceName)
-            || OtherService.isRecognizedServiceEnum(serviceName));
-  }
-
   private boolean isRecognizedServiceId(String serviceId) {
     return isNotEmpty(serviceId)
         && (HealthService.isRecognizedServiceId(serviceId)
@@ -97,7 +90,7 @@ public class DatamartDetailedService {
    * CMS uploads.
    */
   @JsonProperty("serviceId")
-  @JsonAlias("service_id")
+  @JsonAlias({"service_id", "service_api_id"})
   public DatamartDetailedService serviceId(String serviceId) {
     if (isRecognizedServiceId(serviceId)) {
       // Update service info based on recognized service id
@@ -115,13 +108,11 @@ public class DatamartDetailedService {
    */
   @JsonProperty("name")
   public DatamartDetailedService serviceName(String serviceName) {
-    if (isRecognizedEnumOrCovidService(serviceName)) {
-      // Update service info based on recognized service name
-      serviceInfo(
-          serviceInfo() == null
-              ? ServiceInfo.builder().name(serviceName).build()
-              : serviceInfo().name(serviceName));
-    }
+    // Update service info based on recognized service name
+    serviceInfo(
+        serviceInfo() == null
+            ? ServiceInfo.builder().name(serviceName).build()
+            : serviceInfo().name(serviceName));
     return this;
   }
 
@@ -133,6 +124,7 @@ public class DatamartDetailedService {
   @Schema(description = "Service information.")
   public static final class ServiceInfo {
     @Schema(description = "Service id.", example = "covid19Vaccine")
+    @JsonAlias({"service_id", "service_api_id"})
     @NonNull
     String serviceId;
 
@@ -203,6 +195,21 @@ public class DatamartDetailedService {
           this.serviceType = null;
         }
         return this;
+      }
+
+      /**
+       * Backwards compatability supporting upload of CMS overlay services which utilize
+       * service_api_id as their unique identifier.
+       */
+      @SneakyThrows
+      public ServiceInfoBuilder service_api_id(String serviceId) {
+        return serviceId(serviceId);
+      }
+
+      /** ServiceInfo builder method supporting JsonAlias for serviceId. */
+      @SneakyThrows
+      public ServiceInfoBuilder service_id(String serviceId) {
+        return serviceId(serviceId);
       }
     }
   }

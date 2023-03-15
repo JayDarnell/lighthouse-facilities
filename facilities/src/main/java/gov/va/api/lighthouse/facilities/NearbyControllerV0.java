@@ -1,6 +1,7 @@
 package gov.va.api.lighthouse.facilities;
 
 import static gov.va.api.lighthouse.facilities.ControllersV0.validateServices;
+import static gov.va.api.lighthouse.facilities.DatamartFacilitiesJacksonConfig.createMapper;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.Coordinates;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.NearbyId;
 import static gov.va.api.lighthouse.facilities.NearbyUtils.intersections;
@@ -8,13 +9,18 @@ import static gov.va.api.lighthouse.facilities.NearbyUtils.validateDriveTime;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.lighthouse.facilities.DatamartFacility.HealthService;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.api.ServiceType;
 import gov.va.api.lighthouse.facilities.api.v0.NearbyResponse;
 import gov.va.api.lighthouse.facilities.collector.InsecureRestTemplateProvider;
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +49,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping(value = "/v0/nearby")
 @Slf4j
 public class NearbyControllerV0 {
+  private static final ObjectMapper DATAMART_MAPPER = createMapper();
+
   private final FacilityRepository facilityRepository;
 
   private final DriveTimeBandRepository driveTimeBandRepository;
@@ -52,6 +60,8 @@ public class NearbyControllerV0 {
   private final String bingKey;
 
   private final String bingUrl;
+
+  private final List<String> serviceSources;
 
   @Builder
   NearbyControllerV0(
@@ -65,6 +75,52 @@ public class NearbyControllerV0 {
     this.restTemplate = restTemplateProvider.restTemplate();
     this.bingKey = bingKey;
     this.bingUrl = bingUrl.endsWith("/") ? bingUrl : bingUrl + "/";
+    this.serviceSources =
+        List.of(
+            Source.ATC.toString(),
+            Source.DST.toString(),
+            Source.BISL.toString(),
+            Source.internal.toString());
+  }
+
+  private Set<String> buildServiceFilterStrings(Set<ServiceType> services) {
+    Set<String> serviceStrings = new HashSet<>();
+    services.stream()
+        .forEach(
+            serviceType -> {
+              try {
+                if (serviceType.serviceId().equals(HealthService.Covid19Vaccine.serviceId())) {
+                  String service =
+                      DATAMART_MAPPER.writeValueAsString(
+                          DatamartFacility.Service.builder()
+                              .serviceId(serviceType.serviceId())
+                              .name(serviceType.name())
+                              .source(Source.CMS)
+                              .build());
+                  serviceStrings.add(service);
+                } else {
+                  serviceSources.stream()
+                      .forEach(
+                          source -> {
+                            try {
+                              String service =
+                                  DATAMART_MAPPER.writeValueAsString(
+                                      DatamartFacility.Service.builder()
+                                          .serviceId(serviceType.serviceId())
+                                          .name(serviceType.name())
+                                          .source(Source.valueOf(source))
+                                          .build());
+                              serviceStrings.add(service);
+                            } catch (final JsonProcessingException ex) {
+                              throw new RuntimeException(ex);
+                            }
+                          });
+                }
+              } catch (final JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+              }
+            });
+    return serviceStrings;
   }
 
   @SneakyThrows
@@ -77,7 +133,6 @@ public class NearbyControllerV0 {
             .queryParam("key", bingKey)
             .build()
             .toUriString();
-
     String body;
     try {
       body =
@@ -100,7 +155,6 @@ public class NearbyControllerV0 {
             .map(BingResponse.Point::coordinates)
             .filter(c -> c.size() >= 2)
             .findFirst();
-
     if (coordinates.isEmpty()) {
       throw new ExceptionsUtilsV0.BingException(
           String.format(
@@ -115,17 +169,14 @@ public class NearbyControllerV0 {
 
   private String getMonthYearFromBandIds(List<NearbyId> ids) {
     String monthYear;
-
     if (!ids.isEmpty() && driveTimeBandRepository.findById(ids.get(0).bandId).isPresent()) {
       monthYear = driveTimeBandRepository.findById(ids.get(0).bandId).get().monthYear();
     } else {
       monthYear = driveTimeBandRepository.getDefaultBandVersion();
     }
-
     if (monthYear == null) {
       monthYear = "Unknown";
     }
-
     return monthYear;
   }
 
@@ -142,7 +193,6 @@ public class NearbyControllerV0 {
       @RequestParam(value = "drive_time", required = false) Integer maxDriveTime) {
     Coordinates coor = geocodeAddress(street, city, state, zip);
     List<NearbyId> ids = nearbyIds(coor.longitude(), coor.latitude(), services, maxDriveTime);
-
     return NearbyResponse.builder()
         .data(ids.stream().map(this::nearbyFacility).collect(toList()))
         .meta(NearbyResponse.Meta.builder().bandVersion(getMonthYearFromBandIds(ids)).build())
@@ -168,6 +218,7 @@ public class NearbyControllerV0 {
       List<String> rawServices,
       Integer rawMaxDriveTime) {
     Set<ServiceType> services = validateServices(rawServices);
+    Set<String> serviceStrings = buildServiceFilterStrings(services);
     Integer maxDriveTime = validateDriveTime(rawMaxDriveTime);
     log.info(
         "Searching near {},{} within {} minutes with {} services",
@@ -191,7 +242,7 @@ public class NearbyControllerV0 {
             FacilityRepository.StationNumbersSpecification.builder()
                 .stationNumbers(bandsByStation.keySet())
                 .facilityType(FacilityEntity.Type.vha)
-                .services(services)
+                .services(serviceStrings)
                 .build());
     return facilityEntities.stream()
         .map(
@@ -214,7 +265,6 @@ public class NearbyControllerV0 {
       @RequestParam(value = "services[]", required = false) List<String> services,
       @RequestParam(value = "drive_time", required = false) Integer maxDriveTime) {
     List<NearbyId> ids = nearbyIds(longitude, latitude, services, maxDriveTime);
-
     return NearbyResponse.builder()
         .data(ids.stream().map(this::nearbyFacility).collect(toList()))
         .meta(NearbyResponse.Meta.builder().bandVersion(getMonthYearFromBandIds(ids)).build())

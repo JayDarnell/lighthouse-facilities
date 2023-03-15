@@ -48,6 +48,7 @@ import gov.va.api.lighthouse.facilities.DatamartFacility.PatientSatisfaction;
 import gov.va.api.lighthouse.facilities.DatamartFacility.PatientWaitTime;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Phone;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Satisfaction;
+import gov.va.api.lighthouse.facilities.DatamartFacility.Service.Source;
 import gov.va.api.lighthouse.facilities.DatamartFacility.Services;
 import gov.va.api.lighthouse.facilities.DatamartFacility.WaitTimes;
 import java.math.BigDecimal;
@@ -81,8 +82,6 @@ final class HealthTransformer {
   @NonNull private final Map<String, String> websites;
 
   @NonNull private final ArrayList<String> cscFacilities;
-
-  @NonNull private final ArrayList<String> orthoFacilities;
 
   private static Map<String, HealthService> initHealthServicesMap() {
     Map<String, HealthService> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -240,10 +239,6 @@ final class HealthTransformer {
     return !allBlank(id()) && cscFacilities.contains(id());
   }
 
-  boolean hasOrthopedics() {
-    return !allBlank(id()) && orthoFacilities.contains(id());
-  }
-
   private Hours hours() {
     String mon = hoursToClosed(vast.monday());
     String tue = hoursToClosed(vast.tuesday());
@@ -366,31 +361,39 @@ final class HealthTransformer {
                 ace -> {
                   final HealthService healthService = serviceName(ace);
                   return healthService != null
-                      ? Service.<HealthService>builder().serviceType(healthService).build()
+                      ? Service.<HealthService>builder()
+                          .serviceType(healthService)
+                          .source(Source.ATC)
+                          .build()
                       : null;
                 })
             .filter(Objects::nonNull)
             .collect(toCollection(ArrayList::new));
     if (accessToCareEntries().stream().anyMatch(ace -> BooleanUtils.isTrue(ace.emergencyCare()))) {
-      services.add(Service.<HealthService>builder().serviceType(EmergencyCare).build());
+      services.add(
+          Service.<HealthService>builder().serviceType(EmergencyCare).source(Source.ATC).build());
     }
     if (accessToCareEntries().stream().anyMatch(ace -> BooleanUtils.isTrue(ace.urgentCare()))) {
-      services.add(Service.<HealthService>builder().serviceType(UrgentCare).build());
+      services.add(
+          Service.<HealthService>builder().serviceType(UrgentCare).source(Source.ATC).build());
     }
     if (stopCodes().stream().anyMatch(sc -> StopCode.DENTISTRY.contains(trimToEmpty(sc.code())))) {
-      services.add(Service.<HealthService>builder().serviceType(Dental).build());
+      services.add(Service.<HealthService>builder().serviceType(Dental).source(Source.DST).build());
     }
     if (stopCodes().stream().anyMatch(sc -> StopCode.NUTRITION.contains(trimToEmpty(sc.code())))) {
-      services.add(Service.<HealthService>builder().serviceType(Nutrition).build());
+      services.add(
+          Service.<HealthService>builder().serviceType(Nutrition).source(Source.DST).build());
     }
     if (stopCodes().stream().anyMatch(sc -> StopCode.PODIATRY.contains(trimToEmpty(sc.code())))) {
-      services.add(Service.<HealthService>builder().serviceType(Podiatry).build());
+      services.add(
+          Service.<HealthService>builder().serviceType(Podiatry).source(Source.DST).build());
     }
     if (hasCaregiverSupport()) {
-      services.add(Service.<HealthService>builder().serviceType(CaregiverSupport).build());
-    }
-    if (hasOrthopedics()) {
-      services.add(Service.<HealthService>builder().serviceType(Orthopedics).build());
+      services.add(
+          Service.<HealthService>builder()
+              .serviceType(CaregiverSupport)
+              .source(Source.internal)
+              .build());
     }
     Collections.sort(services, (left, right) -> left.name().compareToIgnoreCase(right.name()));
     return emptyToNull(services);

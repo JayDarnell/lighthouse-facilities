@@ -5,15 +5,18 @@ metadata:
   description: Facilities API for VA Lighthouse program
   title: VA Facilities API
   tags:
-  - lighthouse
-  - external
-  - java
-  - json
-  - rest
+    - lighthouse
+    - external
+    - java
+    - json
+    - rest
   links:
-  - url: https://developer.va.gov/explore/facilities
-    title: Public Docs
-    icon: web
+    - url: https://developer.va.gov/explore/facilities
+      title: Public Docs
+      icon: web
+  annotations:
+    github.com/project-slug: department-of-veterans-affairs/lighthouse-facilities
+    backstage.io/techdocs-ref: dir:.
 spec:
   type: openapi
   lifecycle: production

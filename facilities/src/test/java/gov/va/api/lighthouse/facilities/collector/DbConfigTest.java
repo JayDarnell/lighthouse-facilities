@@ -16,7 +16,13 @@ public class DbConfigTest {
     DbConfig dbConfig = new DbConfig();
     JdbcTemplate jdbcTemplate =
         dbConfig.jdbcTemplate(
-            "org.h2.Driver", "password", "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1", "username", 1, 2, 500);
+            "org.h2.Driver",
+            "password",
+            "jdbc:h2:mem:dbconfig;DB_CLOSE_DELAY=-1",
+            "username",
+            1,
+            2,
+            500);
     assertThat(jdbcTemplate.getDataSource()).isInstanceOf(HikariDataSource.class);
   }
 }

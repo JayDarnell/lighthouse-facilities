@@ -41,9 +41,21 @@
     "services" : {
       "other" : [ ],
       "health" : [
-        "primaryCare",
-        "mentalHealthCare",
-        "orthopedics"
+        {
+          "name" : "PrimaryCare",
+          "serviceId" : "primaryCare",
+          "source" : "ATC"
+        },
+        {
+          "name" : "MentalHealthCare",
+          "serviceId" : "mentalHealthCare",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Orthopedics",
+          "serviceId" : "orthopedics",
+          "source" : "ATC"
+        }
       ],
       "last_updated" : "2020-03-16"
     },

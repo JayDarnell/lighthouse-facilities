@@ -1,4 +1,4 @@
-package gov.va.api.lighthouse.facilities.api;
+package gov.va.api.lighthouse.facilities.api.v1;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -15,12 +15,12 @@ import javax.ws.rs.Path;
     security = @SecurityRequirement(name = "apikey"),
     info =
         @Info(
-            version = "0.0.1",
+            version = "1.0.0",
             title = "VA Facilities",
             description =
                 "## Background"
                     + "\n\n"
-                    + "This RESTful API provides information about physical VA facilities. "
+                    + "This RESTful API provides information about physical VA facilities."
                     + "Information available includes\ngeographic location, address, phone,"
                     + " hours of operation, and available services."
                     + "\n\n"
@@ -40,8 +40,8 @@ import javax.ws.rs.Path;
                     + "### Base URLs"
                     + "\n\n"
                     + "The base URLs for the VA Facilities API in the various environments are:\n"
-                    + "- Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`\n"
-                    + "- Production: `https://api.va.gov/services/va_facilities/v0`"
+                    + "- Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v1`\n"
+                    + "- Production: `https://api.va.gov/services/va_facilities/v1`"
                     + "\n\n"
                     + "### Authorization"
                     + "\n\n"
@@ -52,15 +52,8 @@ import javax.ws.rs.Path;
                     + "\n\n"
                     + "Clients may request several response formats "
                     + "by setting the `Accept` header.\n"
-                    + "- `application/json` "
-                    + "- The default JSON response format complies with JSON API. "
-                    + "This media type is *not* available for bulk requests using the "
-                    + "`/facilities/all` endpoint. It will return `406 Not Acceptable`.\n"
-                    + "- `application/geo+json` "
-                    + "- GeoJSON-compliant format, representing each facility as a "
-                    + "feature with a point geometry.\n"
-                    + "- `application/vnd.geo+json` "
-                    + "- Deprecated. Prefer application/geo+json.\n"
+                    + "- `application/json` - The default JSON "
+                    + "response format complies with JSON API.\n"
                     + "- `text/csv` "
                     + "- Available for the bulk download operation only. "
                     + "Some structured fields are omitted from the CSV response."
@@ -72,12 +65,21 @@ import javax.ws.rs.Path;
                     + "- The patient satisfaction scores contained in the `satisfaction` element "
                     + "are only applicable\n  to VA health facilities.\n"
                     + "- The patient wait time values contained in the `wait_times` element "
-                    + "are only applicable to\n  VA health facilities.\n"
+                    + "are only applicable to\n  VA health services.\n"
                     + "- The list of available services in the `services` element is only "
                     + "applicable to VA health and\n  benefits facilities.\n"
+                    + "     - Health service data is based on both real-time "
+                    + "and historical data for v1 of this API.\n"
+                    + "     - Historical data is returned for the previous 30 days. "
+                    + "Data is based on both pending and completed "
+                    + "appointments for a given service at a given facility.\n"
+                    + "     - Service-related data may be added, removed, or modified "
+                    + "by an authorized individual at the data facility. "
+                    + "These data changes are available "
+                    + "to this API in real-time. \n"
                     + "- The operational hours special instructions contained in the "
                     + "`operational_hours_special_instructions` element is only applicable to VA "
-                    + "health and Vet Center facilities."
+                    + "health and Vet Center facilities.\n"
                     + "\n\n"
                     + "### Facility ID Formats and Constraints"
                     + "\n\n"
@@ -96,15 +98,9 @@ import javax.ws.rs.Path;
                     + "If a facility comes back from this API with `\"mobile\": \"true\"`, "
                     + "the latitude/longitude and address could be inaccurate. "
                     + "To get the exact current location, please call the number listed."
-                    + "\n\n## Deprecations\n\n"
-                    + "- `active_status` field is deprecated and replaced with"
-                    + " `operating_status`.\n"
-                    + "- `application/vnd.geo+json` media type is deprecated and replaced by "
-                    + "`application/geo+json`\n"
                     + "\n\n## Reference\n\n"
                     + "- [Raw VA Facilities Open API Spec]"
-                    + "(https://api.va.gov/services/va_facilities/docs/v0/api)\n"
-                    + "- [GeoJSON Format](https://tools.ietf.org/html/rfc7946)\n",
+                    + "(https://api.va.gov/services/va_facilities/docs/v1/api)\n",
             contact = @Contact(name = "developer.va.gov")),
     tags = @Tag(name = "facilities", description = "VA Facilities API"),
     servers = {
@@ -122,8 +118,9 @@ import javax.ws.rs.Path;
     in = SecuritySchemeIn.HEADER)
 @Path("/")
 public interface FacilitiesService
-    extends FacilitiesAllApi,
+    extends FacilitiesSearchApi,
         FacilitiesReadApi,
-        FacilitiesSearchApi,
+        DetailedServicesApi,
+        DetailedServiceApi,
         FacilitiesIdsApi,
         FacilitiesNearbyApi {}

@@ -41,19 +41,71 @@
     "services" : {
       "other" : [ ],
       "health" : [
-        "primaryCare",
-        "mentalHealthCare",
-        "womensHealth",
-        "audiology",
-        "cardiology",
-        "dermatology",
-        "gastroenterology",
-        "gynecology",
-        "ophthalmology",
-        "optometry",
-        "orthopedics",
-        "urology",
-        "dentalServices"
+        {
+          "name" : "PrimaryCare",
+          "serviceId" : "primaryCare",
+          "source" : "ATC"
+        },
+        {
+          "name" : "MentalHealthCare",
+          "serviceId" : "mentalHealthCare",
+          "source" : "ATC"
+        },
+        {
+          "name" : "WomensHealth",
+          "serviceId" : "womensHealth",
+          "source" : "ATC"
+        },
+        {
+          "name" : "audiology",
+          "serviceId" : "audiology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Cardiology",
+          "serviceId" : "cardiology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Dermatology",
+          "serviceId" : "dermatology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Gastroenterology",
+          "serviceId" : "gastroenterology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Gynecology",
+          "serviceId" : "gynecology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Ophthalmology",
+          "serviceId" : "ophthalmology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Optometry",
+          "serviceId" : "optometry",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Orthopedics",
+          "serviceId" : "orthopedics",
+          "source" : "ATC"
+        },
+        {
+          "name" : "Urology",
+          "serviceId" : "urology",
+          "source" : "ATC"
+        },
+        {
+          "name" : "DentalServices",
+          "serviceId" : "dentalServices",
+          "source" : "ATC"
+        }
       ],
       "last_updated" : "2020-03-16"
     },

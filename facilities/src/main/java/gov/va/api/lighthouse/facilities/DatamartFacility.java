@@ -369,8 +369,7 @@ public class DatamartFacility {
 
     /** Determine whether specified service name represents health service. */
     public static boolean isRecognizedServiceEnum(String serviceName) {
-      return "DentalServices".equalsIgnoreCase(serviceName)
-          || "MentalHealthCare".equalsIgnoreCase(serviceName)
+      return isRecognizedServiceNameException(serviceName)
           || Arrays.stream(values())
               .parallel()
               .anyMatch(hs -> hs.name().equalsIgnoreCase(serviceName));
@@ -381,6 +380,15 @@ public class DatamartFacility {
       return "dentalServices".equals(serviceId)
           || "mentalHealthCare".equals(serviceId)
           || Arrays.stream(values()).parallel().anyMatch(hs -> hs.serviceId().equals(serviceId));
+    }
+
+    /**
+     * Determine whether specified service name represents known health service whose name changes
+     * between versions.
+     */
+    public static boolean isRecognizedServiceNameException(String serviceName) {
+      return "DentalServices".equalsIgnoreCase(serviceName)
+          || "MentalHealthCare".equalsIgnoreCase(serviceName);
     }
 
     @Override
@@ -758,9 +766,19 @@ public class DatamartFacility {
 
     @NonNull String serviceId;
 
+    Source source;
+
     @Override
     public int compareTo(@NotNull Service<T> service) {
       return serviceId().compareTo(service.serviceId());
+    }
+
+    public enum Source {
+      ATC,
+      DST,
+      CMS,
+      BISL,
+      internal
     }
 
     /** Custom builder for setting ServiceType and serviceId attributes for Service. */

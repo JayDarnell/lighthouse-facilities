@@ -20,7 +20,7 @@ configValue() {
   local value="$4"
   local target="$REPO/$project/config/application-${profile}.properties"
   local escapedValue=$(echo $value | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')
-  sed -i "s/^$key=.*/$key=$escapedValue/" $target
+  sed -i'' -e "s/^$key=.*/$key=$escapedValue/" $target
 }
 
 checkForUnsetValues() {
